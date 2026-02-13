@@ -1,17 +1,8 @@
-# Бот для Telegram (aiogram 3.5.0)
 aiogram==3.5.0
-
-# Поддержка асинхронных HTTP-запросов
 aiohttp~=3.9.0
-
-# Работа с файлами в асинхронном режиме
 aiofiles~=23.2.1
-
-# Для работы с .env файлами
 python-dotenv~=1.2.1
-
-# Совместимая версия Pydantic для aiogram 3.5.0 и Python 3.12
 pydantic<2.8,>=2.4.1
-
-# Фильтры для aiogram
 magic-filter<1.1,>=1.0.12
+typing-extensions<=5.0,>=4.7.0
+certifi>=2023.7.22
