@@ -32,11 +32,14 @@ async def start_handler(message: types.Message):
 
     photo = FSInputFile("image.jpg")  # <-- сюда вставь имя своего изображения
 
-    await message.answer_photo(
-        photo=photo,
-        caption=text,
-        reply_markup=keyboard
-    )
+   await message.answer_photo(
+    photo="https://i.imgur.com/tz1GnLS.jpeg",
+    caption="Добро пожаловать в интернет-магазин CloudHub. У нас вы можете приобрести жидкости для электронных сигарет, устройства, одноразовые вейпы и картриджи. "
+        "Мы предлагаем широкий ассортимент, актуальные вкусы и популярные бренды. Удобное оформление заказа с быстрой доставкой. "
+        "CloudHub всё для комфортного вейпинга в одном месте.\n\n"
+        "Что-бы перейти в бота нажмите ниже кнопку:",
+    reply_markup=keyboard
+)
 
 
 async def main():
