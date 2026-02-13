@@ -1,35 +1,61 @@
 import os
 from aiogram import Bot, Dispatcher, types
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
-from aiogram.utils import executor
+from aiogram.types.web_app_info import WebAppInfo
+from aiohttp import web
 from dotenv import load_dotenv
 
-load_dotenv()  # Загружаем BOT_TOKEN из .env
+load_dotenv()
 
 API_TOKEN = os.getenv("8284151707:AAENkDQc0nrHztvqzXUMMnqxb5l5XXuCQYQ")
+WEBHOOK_PATH = f"/webhook/8284151707:AAENkDQc0nrHztvqzXUMMnqxb5l5XXuCQYQ"
+WEBAPP_URL = "https://t.me/CloudsHub_bot/cloudhub"  # ваша ссылка на мини-приложение
 
 bot = Bot(token=API_TOKEN)
-dp = Dispatcher(bot)
+dp = Dispatcher()
 
-WELCOME_TEXT = (
-    "Добро пожаловать в интернет-магазин CloudHub.\n"
-    "У нас вы можете приобрести жидкости для электронных сигарет, устройства, одноразовые вейпы и картриджи. "
-    "Мы предлагаем широкий ассортимент, актуальные вкусы и популярные бренды. "
-    "Удобное оформление заказа с быстрой доставкой. CloudHub — всё для комфортного вейпинга в одном месте.\n\n"
-    "Что-бы перейти в бота нажмите ниже кнопку:"
-)
+# Стартовое сообщение с картинкой и кнопкой
+@dp.message(commands=["start"])
+async def start_handler(message: types.Message):
+    keyboard = InlineKeyboardMarkup()
+    button = InlineKeyboardButton(
+        text="🚀Открыть приложение",
+        url=WEBAPP_URL
+    )
+    keyboard.add(button)
+    
+    await message.answer_photo(
+        photo="https://i.imgur.com/tz1GnLS.jpeg",
+        caption=(
+            "Добро пожаловать в интернет-магазин CloudHub.\n"
+            "У нас вы можете приобрести жидкости для электронных сигарет, "
+            "устройства, одноразовые вейпы и картриджи.\n"
+            "Мы предлагаем широкий ассортимент, актуальные вкусы и популярные бренды.\n"
+            "Удобное оформление заказа с быстрой доставкой.\n"
+            "CloudHub — всё для комфортного вейпинга в одном месте.\n\n"
+            "Чтобы перейти в бота нажмите ниже кнопку:"
+        ),
+        reply_markup=keyboard
+    )
 
-IMAGE_URL = "https://i.imgur.com/tz1GnLS.jpeg"
-BUTTON_URL = "https://t.me/CloudsHub_bot/cloudhub"
+# Вебхук хэндлер для Railway
+async def handle(request):
+    data = await request.json()
+    update = types.Update(**data)
+    await dp.process_update(update)
+    return web.Response(text="ok")
 
-# Кнопка
-keyboard = InlineKeyboardMarkup(row_width=1)
-button = InlineKeyboardButton(text="🚀 Открыть приложение", url=BUTTON_URL)
-keyboard.add(button)
+async def on_startup(app):
+    await bot.set_webhook(f"{os.getenv('RAILWAY_STATIC_URL')}{WEBHOOK_PATH}")
 
-@dp.message_handler(commands=['start'])
-async def start(message: types.Message):
-    await bot.send_photo(chat_id=message.chat.id, photo=IMAGE_URL, caption=WELCOME_TEXT, reply_markup=keyboard)
+async def on_shutdown(app):
+    await bot.delete_webhook()
+    await bot.session.close()
+
+app = web.Application()
+app.router.add_post(WEBHOOK_PATH, handle)
+app.on_startup.append(on_startup)
+app.on_shutdown.append(on_shutdown)
 
 if __name__ == "__main__":
-    executor.start_polling(dp, skip_updates=True)
+    web.run_app(app, host="0.0.0.0", port=int(os.getenv("PORT", 3000)))
