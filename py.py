@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 
 load_dotenv()  # Загружаем BOT_TOKEN из .env
 
-API_TOKEN = os.getenv("BOT_TOKEN")
+API_TOKEN = os.getenv("8284151707:AAENkDQc0nrHztvqzXUMMnqxb5l5XXuCQYQ")
 
 bot = Bot(token=API_TOKEN)
 dp = Dispatcher(bot)
